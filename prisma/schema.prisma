@@ -1,0 +1,126 @@
+// Prisma schema for SubscriptionSentry
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id      String  @id @default(cuid())
+  clerkId String  @unique
+  email   String  @unique
+  name    String?
+  image   String?
+  country String? // US, UK - user's preferred country
+  timezone String? // User's timezone for notifications (e.g., "America/New_York", "Europe/London")
+
+  bankAccounts  BankAccount[]
+  subscriptions Subscription[]
+  transactions  Transaction[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model BankAccount {
+  id                   String        @id @default(uuid())
+  user                 User          @relation(fields: [userId], references: [id])
+  userId               String
+  plaidId              String        @unique
+  plaidItemId          String? // Plaid item ID (one item can have multiple accounts)
+  name                 String?
+  type                 String?
+  currency             String? // USD, GBP
+  country              String? // US, UK
+  encryptedAccessToken String? // Encrypted Plaid access token
+  lastSyncAt           DateTime? // Last transaction sync timestamp
+  createdAt            DateTime      @default(now())
+  updatedAt            DateTime      @updatedAt
+  transactions         Transaction[]
+
+  @@index([userId])
+  @@index([plaidItemId])
+}
+
+model Subscription {
+  id                  String        @id @default(uuid())
+  user                User          @relation(fields: [userId], references: [id])
+  userId              String
+  name                String
+  amount              Float
+  currency            String?       @default("USD") // USD, GBP
+  renewalDate         DateTime
+  lastPaymentDate     DateTime? // Last payment date
+  merchant            String?
+  status              String        @default("active") // active, cancelled, paused
+  interval            String? // monthly, yearly, weekly, bi-weekly, quarterly
+  confidenceScore     Decimal? // 0.0 to 1.0 for auto-detected subscriptions
+  category            String? // Streaming, Software, Gaming, Fitness, etc.
+  isAutoDetected      Boolean       @default(false) // true if detected from transactions
+  plaidTransactionIds String[]      @default([]) // Array of transaction IDs that created this subscription
+  lastNotifiedAt      DateTime? // Last time renewal notification was sent
+  createdAt           DateTime      @default(now())
+  updatedAt           DateTime      @updatedAt
+  transactions        Transaction[]
+
+  @@index([userId])
+  @@index([merchant])
+  @@index([category])
+  @@index([status])
+  @@index([renewalDate])
+}
+
+model Transaction {
+  id                 String        @id @default(uuid())
+  user               User          @relation(fields: [userId], references: [id])
+  userId             String
+  bankAccount        BankAccount   @relation(fields: [bankAccountId], references: [id])
+  bankAccountId      String
+  subscription       Subscription? @relation(fields: [subscriptionId], references: [id])
+  subscriptionId     String?
+  amount             Float
+  currency           String?       @default("USD") // USD, GBP
+  date               DateTime
+  description        String?
+  merchant           String? // Raw merchant name from bank/Plaid
+  normalizedMerchant String? // Normalized/cleaned merchant name
+  category           String? // Transaction category
+  isRecurring        Boolean       @default(false) // Flag for recurring transactions
+  confidenceScore    Decimal? // Confidence in merchant matching (0.0 to 1.0)
+  mcc                String? // Merchant Category Code from Plaid
+  createdAt          DateTime      @default(now())
+  updatedAt          DateTime      @updatedAt
+
+  @@index([userId])
+  @@index([bankAccountId])
+  @@index([subscriptionId])
+  @@index([merchant])
+  @@index([normalizedMerchant])
+  @@index([date])
+  @@index([isRecurring])
+}
+
+model KnownMerchant {
+  id             String   @id @default(cuid())
+  name           String   @unique // "Netflix"
+  displayName    String // "Netflix"
+  category       String // "Streaming"
+  logoUrl        String?
+  website        String?
+  keywords       String[] // ["netflix", "nflx", "netflix.com"]
+  countries      String[] // ["US", "UK"]
+  currency       String[] // ["USD", "GBP"]
+  typicalAmounts Json // {"USD": 15.49, "GBP": 10.99}
+  billingCycles  String[] // ["monthly", "yearly"]
+  isActive       Boolean  @default(true)
+  matchCount     Int      @default(0) // popularity tracking
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  @@index([category])
+  @@index([isActive])
+}

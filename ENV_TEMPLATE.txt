@@ -1,0 +1,79 @@
+# ============================================
+# SUBSCRIPTION SENTRY - ENVIRONMENT VARIABLES
+# ============================================
+# Copy these to your .env.local file and fill in your values
+# DO NOT commit .env.local to version control
+
+# ============================================
+# DATABASE
+# ============================================
+# Prisma will use this connection string
+# For SQLite (development): file:./prisma/dev.db
+# For PostgreSQL (production): postgresql://user:password@host:port/database
+DATABASE_URL="file:./prisma/dev.db"
+
+# ============================================
+# AUTHENTICATION (Clerk)
+# ============================================
+# Get these from: https://dashboard.clerk.com
+NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=pk_test_...
+CLERK_SECRET_KEY=sk_test_...
+
+# ============================================
+# PLAID CONFIGURATION
+# ============================================
+# Get these from: https://dashboard.plaid.com/team/keys
+# US Credentials (Required)
+PLAID_CLIENT_ID_US=your_us_client_id_here
+PLAID_SECRET_US=your_us_secret_here
+
+# EU/UK Credentials (Optional - only if supporting UK)
+PLAID_CLIENT_ID_EU=your_eu_client_id_here
+PLAID_SECRET_EU=your_eu_secret_here
+
+# Environment: "sandbox" for testing, "development" for development, "production" for live
+PLAID_ENV=sandbox
+
+# ============================================
+# ENCRYPTION
+# ============================================
+# Generate with: npx tsx scripts/generate-encryption-key.ts
+# This key encrypts Plaid access tokens at rest
+# IMPORTANT: Never commit this key. Each environment needs a unique key.
+ENCRYPTION_KEY=your_32_character_encryption_key_here
+
+# ============================================
+# EMAIL SERVICE (Resend)
+# ============================================
+# Get these from: https://resend.com/api-keys
+RESEND_API_KEY=re_...
+RESEND_FROM_EMAIL=noreply@yourdomain.com
+
+# ============================================
+# AI SERVICE (Google Gemini)
+# ============================================
+# Get this from: https://aistudio.google.com/app/apikey
+GEMINI_API_KEY=your_gemini_api_key_here
+
+# ============================================
+# APPLICATION URL
+# ============================================
+# Used for email links and redirects
+# Development: http://localhost:3000
+# Production: https://yourdomain.com
+NEXT_PUBLIC_APP_URL=http://localhost:3000
+
+# ============================================
+# CRON SECURITY (Optional)
+# ============================================
+# Secret key for securing cron endpoints
+# Generate a random string for production
+CRON_SECRET=your_random_secret_here
+
+# ============================================
+# STRIPE (Optional - for payments/subscriptions)
+# ============================================
+# Get these from: https://dashboard.stripe.com/apikeys
+# NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=pk_test_...
+# STRIPE_SECRET_KEY=sk_test_...
+
