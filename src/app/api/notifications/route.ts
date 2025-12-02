@@ -25,7 +25,7 @@ export async function GET(request: NextRequest) {
 
     // Map Prisma subscriptions to format expected by notification functions
     // The notification functions expect 'nextRenewal' but Prisma uses 'renewalDate'
-    const subscriptions = dbSubscriptions.map(sub => ({
+    const subscriptions = dbSubscriptions.map((sub: typeof dbSubscriptions[0]) => ({
       ...sub,
       nextRenewal: sub.renewalDate.toISOString(),
       // Add any other fields that notification functions might need
