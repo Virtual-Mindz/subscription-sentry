@@ -5,7 +5,7 @@
  */
 
 import { sendEmail } from './email';
-import { renderToString } from 'react-dom/server';
+import { render } from '@react-email/render';
 import { UpcomingBillEmail } from '@/emails/UpcomingBill';
 import { NewSubscriptionDetectedEmail } from '@/emails/NewSubscriptionDetected';
 import { PriceChangeDetectedEmail } from '@/emails/PriceChangeDetected';
@@ -38,7 +38,7 @@ export async function sendUpcomingBillEmail({
     const renewalDateStr = typeof renewalDate === 'string' ? renewalDate : renewalDate.toISOString();
     const dashboardUrl = `${APP_URL}/dashboard/subscriptions`;
 
-    const html = renderToString(
+    const html = await render(
       <UpcomingBillEmail
         subscriptionName={subscriptionName}
         merchant={merchant}
@@ -91,7 +91,7 @@ export async function sendNewSubscriptionDetectedEmail({
   try {
     const dashboardUrl = `${APP_URL}/dashboard/subscriptions`;
 
-    const html = renderToString(
+    const html = await render(
       <NewSubscriptionDetectedEmail
         subscriptionName={subscriptionName}
         merchant={merchant}
@@ -146,7 +146,7 @@ export async function sendPriceChangeDetectedEmail({
     const changeDateStr = typeof changeDate === 'string' ? changeDate : changeDate.toISOString();
     const dashboardUrl = `${APP_URL}/dashboard/subscriptions`;
 
-    const html = renderToString(
+    const html = await render(
       <PriceChangeDetectedEmail
         subscriptionName={subscriptionName}
         merchant={merchant}
