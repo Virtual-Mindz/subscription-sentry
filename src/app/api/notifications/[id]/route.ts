@@ -3,7 +3,7 @@ import { getCurrentUser } from '@/lib/auth';
 
 // PATCH - Mark notification as read or dismiss it
 export async function PATCH(
-  req: NextRequest,
+  req: Request,
   context: { params: { id: string } }
 ) {
   const { id } = context.params;
