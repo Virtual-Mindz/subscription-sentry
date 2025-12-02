@@ -65,7 +65,6 @@ export async function POST(request: NextRequest) {
 
     // Run debug detection before actual detection (only in development)
     if (process.env.NODE_ENV === 'development' && userTransactions.length > 0) {
-      const logger = (await import('@/lib/logger')).logger;
       logger.debug(`Running debug detection on ${userTransactions.length} transactions`);
       await debugDetectRecurring(userTransactions);
     }
@@ -106,7 +105,6 @@ export async function POST(request: NextRequest) {
       : null;
 
     // Enhanced logging (production-safe)
-    const logger = (await import('@/lib/logger')).logger;
     logger.subscriptionDetectionSummary({
       transactions: transactionsCount,
       merchants: detected.length,
