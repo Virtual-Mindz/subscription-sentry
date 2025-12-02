@@ -42,7 +42,6 @@ export async function generateSubscriptionsFromTransactions(
   if (patterns.length === 0) {
     const shouldMock = await shouldGenerateMockTransactions(userId);
     if (shouldMock) {
-      const logger = (await import('@/lib/logger')).logger;
       logger.debug(`No recurring patterns detected. Generating mock transactions for testing...`);
       
       // Get user's first bank account
@@ -63,12 +62,10 @@ export async function generateSubscriptionsFromTransactions(
   }
 
   if (patterns.length === 0) {
-    const logger = (await import('@/lib/logger')).logger;
     logger.debug(`No recurring patterns detected for user ${userId}`);
     return [];
   }
 
-  const logger = (await import('@/lib/logger')).logger;
   logger.debug(`Found ${patterns.length} recurring patterns for user ${userId}`);
 
   const generated: GeneratedSubscription[] = [];
@@ -200,7 +197,6 @@ export async function generateSubscriptionsFromTransactions(
   }
 
   // Production-safe logging
-  const logger = (await import('@/lib/logger')).logger;
   logger.info(`Subscription generation complete: ${generated.length} subscriptions (${createdCount} created, ${updatedCount} updated)`);
   
   return generated;
