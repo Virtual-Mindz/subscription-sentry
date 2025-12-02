@@ -3,16 +3,17 @@ import { getCurrentUser } from '@/lib/auth';
 
 // PATCH - Mark notification as read or dismiss it
 export async function PATCH(
-  request: NextRequest,
-  { params }: { params: { id: string } }
+  req: NextRequest,
+  context: { params: { id: string } }
 ) {
+  const { id } = context.params;
   try {
     const user = await getCurrentUser();
     if (!user?.id) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const body = await request.json();
+    const body = await req.json();
     const { action } = body; // 'read' or 'dismiss'
 
     // Since notifications are generated on-the-fly, we'll store read/dismissed state
