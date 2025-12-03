@@ -3,15 +3,15 @@ import { getCurrentUser } from '@/lib/auth';
 
 export async function PATCH(
   req: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const user = await getCurrentUser();
     if (!user?.id) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
-
-    const { id } = params;
+    
+    const { id } = await params;
     const body = await req.json();
     const { action } = body;
 
