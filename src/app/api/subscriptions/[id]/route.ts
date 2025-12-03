@@ -14,7 +14,7 @@ const updateSubscriptionSchema = z.object({
 // GET - Fetch a single subscription
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const user = await getCurrentUser();
@@ -22,9 +22,11 @@ export async function GET(
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
+    const { id } = await params;
+
     const subscription = await prisma.subscription.findFirst({
       where: {
-        id: params.id,
+        id,
         userId: user.id,
       },
     });
@@ -49,7 +51,7 @@ export async function GET(
 // PUT - Update a subscription
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const user = await getCurrentUser();
@@ -57,13 +59,14 @@ export async function PUT(
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
+    const { id } = await params;
     const body = await request.json();
     const data = updateSubscriptionSchema.parse(body);
 
     // Check if subscription exists and belongs to user
     const existing = await prisma.subscription.findFirst({
       where: {
-        id: params.id,
+        id,
         userId: user.id,
       },
     });
@@ -83,7 +86,7 @@ export async function PUT(
     if (data.status) updateData.status = data.status;
 
     const subscription = await prisma.subscription.update({
-      where: { id: params.id },
+      where: { id },
       data: updateData,
     });
 
@@ -91,7 +94,7 @@ export async function PUT(
   } catch (error) {
     if (error instanceof z.ZodError) {
       return NextResponse.json(
-        { error: error.errors[0].message },
+        { error: error.issues[0].message },
         { status: 400 }
       );
     }
@@ -106,7 +109,7 @@ export async function PUT(
 // DELETE - Delete a subscription
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const user = await getCurrentUser();
@@ -114,10 +117,12 @@ export async function DELETE(
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
+    const { id } = await params;
+
     // Check if subscription exists and belongs to user
     const existing = await prisma.subscription.findFirst({
       where: {
-        id: params.id,
+        id,
         userId: user.id,
       },
     });
@@ -130,7 +135,7 @@ export async function DELETE(
     }
 
     await prisma.subscription.delete({
-      where: { id: params.id },
+      where: { id },
     });
 
     return NextResponse.json({ message: 'Subscription deleted successfully' });
@@ -142,4 +147,3 @@ export async function DELETE(
     );
   }
 }
-
