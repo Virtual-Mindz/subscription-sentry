@@ -11,10 +11,14 @@ const updateSubscriptionSchema = z.object({
   status: z.enum(['active', 'cancelled', 'paused']).optional(),
 });
 
+type RouteContext = {
+  params: Promise<{ id: string }>;
+};
+
 // GET - Fetch a single subscription
 export async function GET(
   request: NextRequest,
-  context: { params: Promise<{ id: string }> }
+  context: RouteContext
 ) {
   try {
     const user = await getCurrentUser();
@@ -22,8 +26,7 @@ export async function GET(
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const params = await context.params;
-    const { id } = params;
+    const { id } = await context.params;
 
     const subscription = await prisma.subscription.findFirst({
       where: {
@@ -52,7 +55,7 @@ export async function GET(
 // PUT - Update a subscription
 export async function PUT(
   request: NextRequest,
-  context: { params: Promise<{ id: string }> }
+  context: RouteContext
 ) {
   try {
     const user = await getCurrentUser();
@@ -60,8 +63,7 @@ export async function PUT(
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const params = await context.params;
-    const { id } = params;
+    const { id } = await context.params;
     const body = await request.json();
     const data = updateSubscriptionSchema.parse(body);
 
@@ -111,7 +113,7 @@ export async function PUT(
 // DELETE - Delete a subscription
 export async function DELETE(
   request: NextRequest,
-  context: { params: Promise<{ id: string }> }
+  context: RouteContext
 ) {
   try {
     const user = await getCurrentUser();
@@ -119,8 +121,7 @@ export async function DELETE(
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const params = await context.params;
-    const { id } = params;
+    const { id } = await context.params;
 
     // Check if subscription exists and belongs to user
     const existing = await prisma.subscription.findFirst({
@@ -145,7 +146,7 @@ export async function DELETE(
   } catch (error) {
     console.error('Error deleting subscription:', error);
     return NextResponse.json(
-      { error: 'Failed to update notification' },
+      { error: 'Failed to delete subscription' },
       { status: 500 }
     );
   }
