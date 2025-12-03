@@ -1,18 +1,17 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextResponse } from 'next/server';
 import { getCurrentUser } from '@/lib/auth';
 
 export async function PATCH(
-  req: NextRequest,
-  context: { params: { id: string } }
+  req: Request,
+  { params }: { params: { id: string } }
 ) {
-  const { id } = context.params;
-
   try {
     const user = await getCurrentUser();
     if (!user?.id) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
+    const { id } = params;
     const body = await req.json();
     const { action } = body;
 
@@ -20,7 +19,6 @@ export async function PATCH(
       success: true,
       message: `Notification ${action === 'read' ? 'marked as read' : 'dismissed'}`,
     });
-
   } catch (error) {
     console.error('Error updating notification:', error);
     return NextResponse.json(
