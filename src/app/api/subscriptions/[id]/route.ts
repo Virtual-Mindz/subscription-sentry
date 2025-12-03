@@ -14,7 +14,7 @@ const updateSubscriptionSchema = z.object({
 // GET - Fetch a single subscription
 export async function GET(
   request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  context: { params: Promise<{ id: string }> }
 ) {
   try {
     const user = await getCurrentUser();
@@ -22,7 +22,8 @@ export async function GET(
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const { id } = await params;
+    const params = await context.params;
+    const { id } = params;
 
     const subscription = await prisma.subscription.findFirst({
       where: {
@@ -51,7 +52,7 @@ export async function GET(
 // PUT - Update a subscription
 export async function PUT(
   request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  context: { params: Promise<{ id: string }> }
 ) {
   try {
     const user = await getCurrentUser();
@@ -59,7 +60,8 @@ export async function PUT(
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const { id } = await params;
+    const params = await context.params;
+    const { id } = params;
     const body = await request.json();
     const data = updateSubscriptionSchema.parse(body);
 
@@ -109,7 +111,7 @@ export async function PUT(
 // DELETE - Delete a subscription
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  context: { params: Promise<{ id: string }> }
 ) {
   try {
     const user = await getCurrentUser();
@@ -117,7 +119,8 @@ export async function DELETE(
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const { id } = await params;
+    const params = await context.params;
+    const { id } = params;
 
     // Check if subscription exists and belongs to user
     const existing = await prisma.subscription.findFirst({
@@ -142,7 +145,7 @@ export async function DELETE(
   } catch (error) {
     console.error('Error deleting subscription:', error);
     return NextResponse.json(
-      { error: 'Failed to delete subscription' },
+      { error: 'Failed to update notification' },
       { status: 500 }
     );
   }
